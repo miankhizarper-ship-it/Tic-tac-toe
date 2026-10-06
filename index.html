@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="A polished, accessible Tic Tac Toe game for two players or a player versus computer.">
+    <title>Neon Tic Tac Toe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="app-shell" id="app">
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
+      <div class="ambient ambient-three" aria-hidden="true"></div>
+
+      <header class="app-header">
+        <a class="brand" href="#" aria-label="Neon Tic Tac Toe home" data-home-link>
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+          <span class="brand-copy"><strong>Neon</strong><span>Tic Tac Toe</span></span>
+        </a>
+        <div class="global-actions">
+          <button class="icon-button" type="button" data-sound-toggle aria-label="Turn sound on" title="Turn sound on">
+            <svg class="ui-icon sound-on-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.2L12 18.3V5.7L7.2 9.5H4Z"/><path d="M15.2 9a4.2 4.2 0 0 1 0 6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>
+            <svg class="ui-icon sound-off-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.2L12 18.3V5.7L7.2 9.5H4Z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+          </button>
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Switch to light theme" title="Switch to light theme">
+            <svg class="ui-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 15.3A8.1 8.1 0 0 1 8.7 3.5 8.4 8.4 0 1 0 20.5 15.3Z"/></svg>
+            <svg class="ui-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.3"/><path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="screens" id="main-content">
+        <section class="screen menu-screen is-active" id="menu-screen" aria-labelledby="menu-title">
+          <div class="menu-card glass-card">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Classic game, electric energy</div>
+            <div class="menu-heading">
+              <h1 id="menu-title">Make your<br><span>mark.</span></h1>
+              <p>Set the rules, pick your symbol, and light up the board.</p>
+            </div>
+
+            <div class="setup-stack">
+              <fieldset class="setup-group">
+                <legend>Choose your mode</legend>
+                <div class="mode-grid">
+                  <button class="mode-option is-selected" type="button" data-mode="pvp" aria-pressed="true">
+                    <span class="option-icon option-people" aria-hidden="true"><span></span><span></span></span>
+                    <span><strong>Player vs Player</strong><small>Pass the device</small></span>
+                    <span class="selected-check" aria-hidden="true">✓</span>
+                  </button>
+                  <button class="mode-option" type="button" data-mode="pvc" aria-pressed="false">
+                    <span class="option-icon option-bolt" aria-hidden="true">✦</span>
+                    <span><strong>Player vs Computer</strong><small>Test your strategy</small></span>
+                    <span class="selected-check" aria-hidden="true">✓</span>
+                  </button>
+                </div>
+              </fieldset>
+
+              <fieldset class="setup-group conditional-choice" data-computer-setting hidden>
+                <legend>Computer difficulty</legend>
+                <div class="segmented-control difficulty-control">
+                  <button type="button" class="segment is-selected" data-difficulty="easy" aria-pressed="true">Easy</button>
+                  <button type="button" class="segment" data-difficulty="medium" aria-pressed="false">Medium</button>
+                  <button type="button" class="segment" data-difficulty="hard" aria-pressed="false">Hard</button>
+                </div>
+              </fieldset>
+
+              <fieldset class="setup-group conditional-choice" data-computer-setting hidden>
+                <legend>Your symbol</legend>
+                <div class="symbol-choice">
+                  <button type="button" class="symbol-option is-selected" data-symbol-choice="X" aria-label="Play as X" aria-pressed="true"></button>
+                  <button type="button" class="symbol-option" data-symbol-choice="O" aria-label="Play as O" aria-pressed="false"></button>
+                </div>
+              </fieldset>
+            </div>
+
+            <button class="primary-button start-button" type="button" data-start-game data-ripple>
+              <span>Start game</span><span class="button-arrow" aria-hidden="true">↗</span>
+            </button>
+            <p class="keyboard-hint"><kbd>R</kbd> restart round anytime</p>
+          </div>
+        </section>
+
+        <section class="screen game-screen" id="game-screen" aria-labelledby="game-title" aria-hidden="true">
+          <div class="game-card glass-card">
+            <div class="game-topline">
+              <div>
+                <p class="eyebrow"><span class="eyebrow-dot"></span><span data-game-mode-label>Local match</span></p>
+                <h1 id="game-title">Your next move</h1>
+              </div>
+              <button class="text-button" type="button" data-new-game data-ripple><span aria-hidden="true">‹</span> New game</button>
+            </div>
+
+            <div class="scoreboard" aria-label="Scoreboard">
+              <div class="score-card score-x" data-score-card="X">
+                <div class="score-label"><span class="score-symbol" data-score-symbol="X"></span><span>Player X</span></div>
+                <strong class="score-value" data-score-value="X">0</strong>
+              </div>
+              <div class="score-card score-draws" data-score-card="draws">
+                <div class="score-label"><span class="draw-symbol" aria-hidden="true">=</span><span>Draws</span></div>
+                <strong class="score-value" data-score-value="draws">0</strong>
+              </div>
+              <div class="score-card score-o" data-score-card="O">
+                <div class="score-label"><span class="score-symbol" data-score-symbol="O"></span><span>Player O</span></div>
+                <strong class="score-value" data-score-value="O">0</strong>
+              </div>
+            </div>
+
+            <div class="turn-bar" aria-live="polite">
+              <div class="turn-indicator" data-turn-indicator="X"><span class="turn-icon" data-turn-symbol="X"></span><span>X</span></div>
+              <div class="turn-status" data-status-message role="status">X's turn</div>
+              <div class="turn-indicator" data-turn-indicator="O"><span class="turn-icon" data-turn-symbol="O"></span><span>O</span></div>
+            </div>
+
+            <div class="board-wrap">
+              <div class="board" data-board role="grid" aria-label="Tic Tac Toe board" aria-describedby="board-help">
+                <button class="cell" type="button" role="gridcell" data-cell="0" aria-label="Empty cell, row 1 column 1"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="1" aria-label="Empty cell, row 1 column 2"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="2" aria-label="Empty cell, row 1 column 3"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="3" aria-label="Empty cell, row 2 column 1"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="4" aria-label="Empty cell, row 2 column 2"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="5" aria-label="Empty cell, row 2 column 3"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="6" aria-label="Empty cell, row 3 column 1"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="7" aria-label="Empty cell, row 3 column 2"></button>
+                <button class="cell" type="button" role="gridcell" data-cell="8" aria-label="Empty cell, row 3 column 3"></button>
+                <svg class="winning-line" data-winning-line viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="8" y1="17" x2="92" y2="17"></line></svg>
+              </div>
+            </div>
+            <p class="board-help" id="board-help">Use arrow keys to move between cells. Press Enter or Space to place your mark.</p>
+
+            <div class="game-actions">
+              <button class="secondary-button" type="button" data-restart-round data-ripple>Restart round</button>
+              <button class="ghost-button" type="button" data-reset-scores data-ripple>Reset scores</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="confetti-layer" data-confetti aria-hidden="true"></div>
+
+      <div class="modal-backdrop" data-result-modal hidden>
+        <section class="result-modal glass-card" role="dialog" aria-modal="true" aria-labelledby="result-title" aria-describedby="result-subtitle">
+          <div class="result-orb" data-result-orb></div>
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Round complete</p>
+          <div class="result-symbol" data-result-symbol aria-hidden="true"></div>
+          <h2 id="result-title" data-result-title>You win!</h2>
+          <p id="result-subtitle" data-result-subtitle>That was a brilliant line.</p>
+          <button class="primary-button" type="button" data-play-again data-ripple><span>Play again</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+          <button class="text-button modal-new-game" type="button" data-new-game>Back to menu</button>
+        </section>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
