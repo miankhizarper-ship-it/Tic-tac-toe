@@ -936,6 +936,7 @@ kbd {
 
 .board-wrap {
   width: min(100%, 39rem);
+  flex: 0 0 auto;
   margin: 0 auto;
 }
 
@@ -943,6 +944,9 @@ kbd {
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Fixed tracks stop SVG marks from changing the board's position or size. */
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  contain: layout paint;
   gap: clamp(0.42rem, 1.5vw, 0.85rem);
   width: 100%;
   aspect-ratio: 1;

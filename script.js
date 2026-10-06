@@ -29,7 +29,8 @@
   const STORAGE_KEYS = {
     scores: "neon-tic-tac-toe-scores",
     theme: "neon-tic-tac-toe-theme",
-    sound: "neon-tic-tac-toe-sound"
+    sound: "neon-tic-tac-toe-sound",
+    settings: "neon-tic-tac-toe-settings"
   };
 
   const state = {
@@ -65,7 +66,6 @@
     playAgainButton: document.querySelector("[data-play-again]"),
     soundToggle: document.querySelector("[data-sound-toggle]"),
     themeToggle: document.querySelector("[data-theme-toggle]"),
-    homeLink: document.querySelector("[data-home-link]"),
     modeOptions: document.querySelectorAll("[data-mode]"),
     difficultyOptions: document.querySelectorAll("[data-difficulty]"),
     symbolOptions: document.querySelectorAll("[data-symbol-choice]"),
@@ -155,10 +155,14 @@
 
   const showScreen = (screen) => {
     const showingGame = screen === refs.gameScreen;
-    refs.menuScreen.classList.toggle("is-active", !showingGame);
-    refs.gameScreen.classList.toggle("is-active", showingGame);
-    refs.menuScreen.setAttribute("aria-hidden", String(showingGame));
-    refs.gameScreen.setAttribute("aria-hidden", String(!showingGame));
+    if (refs.menuScreen) {
+      refs.menuScreen.classList.toggle("is-active", !showingGame);
+      refs.menuScreen.setAttribute("aria-hidden", String(showingGame));
+    }
+    if (refs.gameScreen) {
+      refs.gameScreen.classList.toggle("is-active", showingGame);
+      refs.gameScreen.setAttribute("aria-hidden", String(!showingGame));
+    }
   };
 
   const clearComputerTimer = () => {
@@ -415,20 +419,15 @@
   };
 
   const restartRound = () => {
-    if (!refs.gameScreen.classList.contains("is-active")) return;
+    if (!refs.gameScreen || !refs.gameScreen.classList.contains("is-active")) return;
     startRound();
   };
 
   const newGame = () => {
     clearComputerTimer();
     clearModalTimer();
-    state.roundId += 1;
-    state.gameOver = true;
-    state.computerThinking = false;
     closeResultModal();
-    renderMenuChoices();
-    showScreen(refs.menuScreen);
-    window.requestAnimationFrame(() => refs.startButton.focus());
+    window.location.href = "index.html";
   };
 
   /* =========================================
@@ -699,26 +698,20 @@
     window.setTimeout(() => ripple.remove(), 650);
   };
 
-  const bindEvents = () => {
-    refs.modeOptions.forEach((option) => option.addEventListener("click", () => selectMode(option.dataset.mode)));
-    refs.difficultyOptions.forEach((option) => option.addEventListener("click", () => selectDifficulty(option.dataset.difficulty)));
-    refs.symbolOptions.forEach((option) => option.addEventListener("click", () => selectSymbol(option.dataset.symbolChoice)));
+  const saveGameSettings = () => {
+    writeStorage(STORAGE_KEYS.settings, {
+      mode: state.mode,
+      difficulty: state.difficulty,
+      playerSymbol: state.playerSymbol
+    });
+  };
 
-    refs.startButton.addEventListener("click", startRound);
-    refs.newGameButtons.forEach((button) => button.addEventListener("click", newGame));
-    refs.restartButton.addEventListener("click", restartRound);
-    refs.resetScoresButton.addEventListener("click", () => {
-      state.scores = { X: 0, O: 0, draws: 0 };
-      writeStorage(STORAGE_KEYS.scores, state.scores);
-      renderScores();
-      playClickSound();
-    });
-    refs.playAgainButton.addEventListener("click", startRound);
-    refs.board.addEventListener("click", (event) => {
-      const cell = event.target.closest("[data-cell]");
-      if (cell) makeMove(Number(cell.dataset.cell));
-    });
-    refs.board.addEventListener("keydown", handleCellKeydown);
+  const startConfiguredGame = () => {
+    saveGameSettings();
+    window.location.href = "game.html";
+  };
+
+  const bindEvents = () => {
     refs.soundToggle.addEventListener("click", () => {
       setSound(!state.soundOn, true);
       if (state.soundOn) playClickSound();
@@ -726,11 +719,31 @@
     refs.themeToggle.addEventListener("click", () => {
       setTheme(root.dataset.theme === "light" ? "dark" : "light", true);
     });
-    refs.homeLink.addEventListener("click", (event) => {
-      event.preventDefault();
-      newGame();
-    });
     refs.app.addEventListener("click", createRipple);
+
+    if (document.body.dataset.page === "home") {
+      refs.modeOptions.forEach((option) => option.addEventListener("click", () => selectMode(option.dataset.mode)));
+      refs.difficultyOptions.forEach((option) => option.addEventListener("click", () => selectDifficulty(option.dataset.difficulty)));
+      refs.symbolOptions.forEach((option) => option.addEventListener("click", () => selectSymbol(option.dataset.symbolChoice)));
+      refs.startButton.addEventListener("click", startConfiguredGame);
+    }
+
+    if (document.body.dataset.page === "game") {
+      refs.newGameButtons.forEach((button) => button.addEventListener("click", newGame));
+      refs.restartButton.addEventListener("click", restartRound);
+      refs.resetScoresButton.addEventListener("click", () => {
+        state.scores = { X: 0, O: 0, draws: 0 };
+        writeStorage(STORAGE_KEYS.scores, state.scores);
+        renderScores();
+        playClickSound();
+      });
+      refs.playAgainButton.addEventListener("click", startRound);
+      refs.board.addEventListener("click", (event) => {
+        const cell = event.target.closest("[data-cell]");
+        if (cell) makeMove(Number(cell.dataset.cell));
+      });
+      refs.board.addEventListener("keydown", handleCellKeydown);
+    }
 
     document.addEventListener("keydown", (event) => {
       const target = event.target;
@@ -745,16 +758,31 @@
   /* =========================================
      Initialization
      ========================================= */
+  const loadGameSettings = () => {
+    const saved = readStorage(STORAGE_KEYS.settings, {});
+    if (saved?.mode === "pvp" || saved?.mode === "pvc") state.mode = saved.mode;
+    if (["easy", "medium", "hard"].includes(saved?.difficulty)) state.difficulty = saved.difficulty;
+    if (saved?.playerSymbol === "X" || saved?.playerSymbol === "O") {
+      state.playerSymbol = saved.playerSymbol;
+      state.computerSymbol = saved.playerSymbol === "X" ? "O" : "X";
+    }
+  };
+
   const init = () => {
-    state.scores = loadScores();
     setTheme(getInitialTheme());
     const savedSound = readStorage(STORAGE_KEYS.sound, "off");
     setSound(savedSound === "on");
+    loadGameSettings();
     renderScoreSymbols();
-    renderMenuChoices();
-    renderGame();
     bindEvents();
-    showScreen(refs.menuScreen);
+
+    if (document.body.dataset.page === "home") {
+      renderMenuChoices();
+      return;
+    }
+
+    state.scores = loadScores();
+    startRound();
   };
 
   init();
